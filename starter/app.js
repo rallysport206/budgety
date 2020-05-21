@@ -145,7 +145,8 @@ let UIController = (function(){
         expensesLabel: '.budget__expenses--value',
         percentageLabel: '.budget__expenses--percentage',
         container: '.container',
-        expensesPercLabel: '.item__percentage'
+        expensesPercLabel: '.item__percentage',
+        dateLabel: '.budget__title--month'
     };
 
     let formatNumber = function(num, type){
@@ -242,6 +243,28 @@ let UIController = (function(){
             });
         },
 
+        displayMonth: function() {
+            let now, year, months, month;
+            now = new Date();
+            year = now.getFullYear();
+            months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October','November', 'December'];
+            month = now.getMonth();
+
+            document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
+        },
+
+        changedType: function(){
+            let fields = document.querySelectorAll(
+                DOMstrings.inputType + ',' +
+                DOMstrings.inputDescription + ',' +
+                DOMstrings.inputValue
+            );
+            nodeListForEach(fields, function(cur) {
+                cur.classList.toggle('red-focus');
+            });
+            document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
+        },
+
         getDOMstrings: function(){
             return DOMstrings;
         }
@@ -249,10 +272,10 @@ let UIController = (function(){
 })();
 
 //GLOBAL APP CONTROLLER
-let controller =(function(budgetCtrl, UICtl){
+let controller =(function(budgetCtrl, UICtrl){
 
     let setupEventListeners = function () {
-        let DOM = UICtl.getDOMstrings();
+        let DOM = UICtrl.getDOMstrings();
 
         document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
 
@@ -263,6 +286,8 @@ let controller =(function(budgetCtrl, UICtl){
         });
 
         document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+
+        document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
     };
 
     const updateBudget = function() {
@@ -272,7 +297,7 @@ let controller =(function(budgetCtrl, UICtl){
         // 2 return the budget
         let budget = budgetCtrl.getBudget();
         // 3 display the budget on the UI
-        UICtl.displayBudget(budget);
+        UICtrl.displayBudget(budget);
     };
 
     const updatePercentages = function() {
@@ -282,21 +307,21 @@ let controller =(function(budgetCtrl, UICtl){
         //2 read percentages from the budget controller
         let percentages = budgetCtrl.getPercentages();
         //3 update the UI with new percentages
-        UICtl.displayPercentages(percentages);
+        UICtrl.displayPercentages(percentages);
     };
 
     const ctrlAddItem = function(){
         let input, newItem;
         // 1 get filed input data
-        input = UICtl.getInput();
+        input = UICtrl.getInput();
 
         if(input.description !== "" && !isNaN(input.value) && input.value > 0) {
             // 2 add the item to budget controller
             newItem = budgetCtrl.addItem(input.type, input.description, input.value);
             // 3 add the item to the UI
-            UICtl.addListItem(newItem, input.type);
+            UICtrl.addListItem(newItem, input.type);
             // 4 clear fields
-            UICtl.clearFields();
+            UICtrl.clearFields();
             //5 calculate and update budget
             updateBudget()
             //6 calculate and update percentages
@@ -316,7 +341,7 @@ let controller =(function(budgetCtrl, UICtl){
             //1 delete item from data structure
             budgetCtrl.deleteItem(type, ID);
             //2 delete the item from the UI
-            UICtl.deleteListItem(itemID);
+            UICtrl.deleteListItem(itemID);
             //3 update and show new budget
             updateBudget();
             //4 update and calculate percentages
@@ -327,7 +352,8 @@ let controller =(function(budgetCtrl, UICtl){
     return {
         init: function() {
             console.log('Application has started.');
-            UICtl.displayBudget( {
+            UICtrl.displayMonth();
+            UICtrl.displayBudget( {
                 budget: 0,
                 totalInc: 0,
                 totalExp: 0,
