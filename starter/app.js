@@ -162,6 +162,12 @@ let UIController = (function(){
         dec = numSplit[1];
         return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
     };
+    
+    let nodeListForEach = function(list, callback) {
+        for(let i = 0; i < list.length; i++) {
+            callback(list[i], i);
+        }
+    };
 
     return {
         getInput: function() {
@@ -228,11 +234,6 @@ let UIController = (function(){
         
         displayPercentages: function(percentages) {
             let fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
-            let nodeListForEach = function(list, callback) {
-                for(let i = 0; i < list.length; i++) {
-                    callback(list[i], i);
-                }
-            };
 
             nodeListForEach(fields, function(current, index){
                 if(percentages[index] > 0){
@@ -253,7 +254,7 @@ let UIController = (function(){
             document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
         },
 
-        changedType: function(){
+        changedType: function() {
             let fields = document.querySelectorAll(
                 DOMstrings.inputType + ',' +
                 DOMstrings.inputDescription + ',' +
